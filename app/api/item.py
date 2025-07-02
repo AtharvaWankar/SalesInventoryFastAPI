@@ -9,7 +9,6 @@ from app.schemas.item import (
 )
 from app.crud import item as crud_item
 from app.utils.csv_utils import items_to_csv
-from pydantic_settings import BaseSettings
 
 router = APIRouter()
 

@@ -22,4 +22,4 @@ class ItemInDB(ItemBase):
         orm_mode = True
 
 class ItemResponse(ItemInDB):
-    alert: bool = Falsese
+    alert: bool = False
