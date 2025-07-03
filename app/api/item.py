@@ -50,6 +50,37 @@ def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
     return add_alert(db_item)
 
 @router.patch("/items/{item_id}/quantity", response_model=ItemResponse)
+def update_item_quantity(item_id: int, qty_update: ItemPartialUpdateQty, db: Session = Depends(get_db)):
+    db_item = crud_item.update_item_qty(db, item_id, qty_update.qty)
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return add_alert(db_item)
+
+@router.delete("/items/{item_id}", response_model=ItemResponse)
+def delete_item(item_id: int, db: Session = Depends(get_db)):
+    db_item = crud_item.delete_item(db, item_id)
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return add_alert(db_item)
+
+@router.get("/items/search/", response_model=List[ItemResponse])
+def search_items(name: str = Query(..., description="Item name to search for"), db: Session = Depends(get_db)):
+    items = crud_item.search_items_by_name(db, name)
+    return [add_alert(i) for i in items]
+
+@router.get("/items/alerts/", response_model=List[ItemResponse])
+def get_alert_items(db: Session = Depends(get_db)):
+    items = crud_item.get_items_below_threshold(db)
+    return [add_alert(i) for i in items]
+
+@router.post("/items/bulk/", response_model=List[ItemResponse])
+def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
+    db_item = crud_item.update_item(db, item_id, item)
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return add_alert(db_item)
+
+@router.patch("/items/{item_id}/quantity", response_model=ItemResponse)
 def update_item_qty(item_id: int, qty_update: ItemPartialUpdateQty, db: Session = Depends(get_db)):
     db_item = crud_item.update_item_qty(db, item_id, qty_update.qty)
     if not db_item:
