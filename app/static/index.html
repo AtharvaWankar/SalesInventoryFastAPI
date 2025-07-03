@@ -1100,6 +1100,14 @@
                     CSV format: item_name, qty, threshold
                 </p>
                 <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                <div id="selectedFileInfo" style="margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 8px; display: none;">
+                    <p style="margin: 0; font-weight: 600; color: #1e40af;">
+                        📄 Selected file: <span id="fileName"></span>
+                    </p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #6b7280;">
+                        File size: <span id="fileSize"></span>
+                    </p>
+                </div>
             </div>
             <div style="margin-top: 1rem;">
                 <button onclick="processBulkUpload()" class="btn">Upload Items</button>
@@ -1487,6 +1495,8 @@
 
         function closeBulkModal() {
             document.getElementById('bulkModal').style.display = 'none';
+            document.getElementById('csvFile').value = '';
+            document.getElementById('selectedFileInfo').style.display = 'none';
         }
 
         function handleDragOver(e) {
@@ -1499,12 +1509,39 @@
             e.currentTarget.classList.remove('dragover');
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                document.getElementById('csvFile').files = files;
+                const file = files[0];
+                if (file.name.toLowerCase().endsWith('.csv')) {
+                    document.getElementById('csvFile').files = files;
+                    displaySelectedFile(file);
+                } else {
+                    showStatus('Please drop a CSV file', 'error');
+                }
             }
         }
 
         function handleFileSelect(e) {
-            // File selected, ready for upload
+            const file = e.target.files[0];
+            if (file) {
+                displaySelectedFile(file);
+            }
+        }
+
+        function displaySelectedFile(file) {
+            const fileInfo = document.getElementById('selectedFileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         async function processBulkUpload() {
@@ -1515,43 +1552,108 @@
             }
 
             const file = fileInput.files[0];
-            const csvContent = await file.text();
             
+            // Validate file type
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showStatus('Please select a valid CSV file', 'error');
+                return;
+            }
+
             try {
-                // Parse CSV manually for bulk upload
-                const lines = csvContent.split('\n');
-                const items = [];
+                const csvContent = await file.text();
                 
-                for (let i = 1; i < lines.length; i++) { // Skip header
+                // Parse CSV manually for bulk upload
+                const lines = csvContent.split('\n').filter(line => line.trim());
+                const items = [];
+                let errorCount = 0;
+                
+                // Check if we have a header line and skip it
+                const startIndex = lines[0] && lines[0].toLowerCase().includes('item_name') ? 1 : 0;
+                
+                for (let i = startIndex; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
                     
-                    const [item_name, qty, threshold] = line.split(',').map(s => s.trim());
-                    if (item_name && qty && threshold) {
-                        items.push({
-                            item_name: item_name.replace(/"/g, ''),
-                            qty: parseInt(qty),
-                            threshold: parseInt(threshold)
-                        });
+                    // Handle CSV with commas inside quoted fields
+                    const csvParts = parseCSVLine(line);
+                    
+                    if (csvParts.length >= 3) {
+                        const item_name = csvParts[0].trim().replace(/^["']|["']$/g, '');
+                        const qtyStr = csvParts[1].trim();
+                        const thresholdStr = csvParts[2].trim();
+                        
+                        const qty = parseInt(qtyStr);
+                        const threshold = parseInt(thresholdStr);
+                        
+                        if (item_name && !isNaN(qty) && !isNaN(threshold) && qty >= 0 && threshold >= 0) {
+                            items.push({
+                                item_name: item_name,
+                                qty: qty,
+                                threshold: threshold
+                            });
+                        } else {
+                            errorCount++;
+                            console.warn(`Invalid data on line ${i + 1}: ${line}`);
+                        }
+                    } else {
+                        errorCount++;
+                        console.warn(`Invalid format on line ${i + 1}: ${line}`);
                     }
                 }
 
                 if (items.length === 0) {
-                    showStatus('No valid items found in CSV', 'error');
+                    showStatus('No valid items found in CSV. Please check the format: item_name, qty, threshold', 'error');
                     return;
                 }
 
-                await makeRequest('/items/bulk/', {
+                console.log('Parsed items:', items);
+
+                const response = await makeRequest('/items/bulk/', {
                     method: 'POST',
                     body: JSON.stringify(items)
                 });
                 
-                showStatus(`${items.length} items uploaded successfully!`);
+                let message = `${items.length} items uploaded successfully!`;
+                if (errorCount > 0) {
+                    message += ` (${errorCount} rows skipped due to errors)`;
+                }
+                
+                showStatus(message);
                 closeBulkModal();
                 loadAllItems();
+                
+                // Clear the file input
+                fileInput.value = '';
+                document.getElementById('selectedFileInfo').style.display = 'none';
+                
             } catch (error) {
+                console.error('Bulk upload error:', error);
                 showStatus('Bulk upload failed: ' + error.message, 'error');
             }
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"' && (i === 0 || line[i-1] === ',')) {
+                    inQuotes = true;
+                } else if (char === '"' && inQuotes && (i === line.length - 1 || line[i+1] === ',')) {
+                    inQuotes = false;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
         }
 
         // Close modals when clicking outside
