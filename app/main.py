@@ -10,10 +10,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# Serve the main UI at root
 @app.get("/")
 async def read_index():
     return FileResponse('app/static/index.html')
