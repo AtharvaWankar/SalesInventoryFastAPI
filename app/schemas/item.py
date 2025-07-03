@@ -22,4 +22,4 @@ class ItemInDB(ItemBase):
         from_attributes = True
 
 class ItemResponse(ItemInDB):
-    alert: bool = False
+    alert: bool = Falsese

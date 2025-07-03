@@ -784,24 +784,28 @@
 
         .stats-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
         }
 
         .stat-card {
-            background: var(--bg-secondary);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 1.5rem;
-            border-radius: 16px;
-            box-shadow: var(--glass-shadow);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.3),
+                0 2px 8px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
             text-align: center;
-            border-left: 4px solid;
-            border: 1px solid var(--border-light);
+            border: 2px solid rgba(255, 255, 255, 0.5);
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .stat-card::before {
@@ -811,44 +815,109 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border-radius: 20px;
             pointer-events: none;
+            z-index: 1;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            border-radius: 20px 20px 0 0;
+            z-index: 2;
         }
 
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--glass-shadow), 0 10px 25px rgba(31, 38, 135, 0.15);
-            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 15px 45px rgba(31, 38, 135, 0.4),
+                0 5px 15px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 255, 255, 0.8);
         }
 
-        .stat-card.total {
-            border-left-color: #667eea;
+        .stat-card.total::after {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        .stat-card.alerts {
-            border-left-color: #ff6b6b;
+        .stat-card.alerts::after {
+            background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
         }
 
-        .stat-card.low-stock {
-            border-left-color: #ffa726;
+        .stat-card.low-stock::after {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
         }
 
-        .stat-card.in-stock {
-            border-left-color: #26c6da;
+        .stat-card.in-stock::after {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 3;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.total .stat-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card.alerts .stat-number {
+            background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card.low-stock .stat-number {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card.in-stock .stat-number {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .stat-label {
-            color: var(--text-muted);
+            color: var(--text-secondary);
             font-size: 0.9rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 3;
+            opacity: 0.8;
+        }
+
+        .stat-card:hover .stat-number {
+            transform: scale(1.05);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card:hover .stat-label {
+            opacity: 1;
+            transform: translateY(-2px);
         }
     </style>
 </head>
