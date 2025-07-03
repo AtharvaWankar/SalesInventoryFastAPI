@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .action-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .items-display {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .items-display h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .item-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-card.alert {
+            border-color: #ff6b6b;
+            background: #ffe6e6;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-details {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .item-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .item-actions .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .alert-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .success-badge {
+            background: #2ecc71;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .bulk-upload {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .bulk-upload:hover {
+            background-color: #f8f9fa;
+        }
+
+        .bulk-upload.dragover {
+            background-color: #e6f2ff;
+            border-color: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Inventory Management System</h1>
+            <p>Manage your inventory items with ease</p>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="actions">
+            <!-- Add New Item -->
+            <div class="action-card">
+                <h3>➕ Add New Item</h3>
+                <form id="addItemForm">
+                    <div class="form-group">
+                        <label for="itemName">Item Name:</label>
+                        <input type="text" id="itemName" name="itemName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemQty">Quantity:</label>
+                        <input type="number" id="itemQty" name="itemQty" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemThreshold">Threshold:</label>
+                        <input type="number" id="itemThreshold" name="itemThreshold" min="0" required>
+                    </div>
+                    <button type="submit" class="btn">Add Item</button>
+                </form>
+            </div>
+
+            <!-- Search Items -->
+            <div class="action-card">
+                <h3>🔍 Search Items</h3>
+                <div class="form-group">
+                    <label for="searchName">Search by Name:</label>
+                    <input type="text" id="searchName" placeholder="Enter item name...">
+                </div>
+                <button onclick="searchItems()" class="btn btn-info">Search</button>
+                <button onclick="loadAllItems()" class="btn">Show All</button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="action-card">
+                <h3>⚡ Quick Actions</h3>
+                <button onclick="loadAlertItems()" class="btn btn-danger">Show Alert Items</button>
+                <button onclick="downloadCSV()" class="btn btn-success">Download CSV</button>
+                <button onclick="showBulkUpload()" class="btn btn-info">Bulk Upload</button>
+            </div>
+        </div>
+
+        <!-- Items Display -->
+        <div class="items-display">
+            <h3 id="itemsTitle">📋 All Items</h3>
+            <div id="itemsContainer" class="items-grid">
+                <div class="loading">Loading items...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Item Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>✏️ Update Item</h3>
+            <form id="updateItemForm">
+                <input type="hidden" id="updateItemId">
+                <div class="form-group">
+                    <label for="updateItemName">Item Name:</label>
+                    <input type="text" id="updateItemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateItemQty">Quantity:</label>
+                    <input type="number" id="updateItemQty" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateItemThreshold">Threshold:</label>
+                    <input type="number" id="updateItemThreshold" min="0" required>
+                </div>
+                <button type="submit" class="btn">Update Item</button>
+                <button type="button" onclick="closeModal()" class="btn btn-danger">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Quantity Update Modal -->
+    <div id="qtyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQtyModal()">&times;</span>
+            <h3>🔄 Update Quantity</h3>
+            <form id="updateQtyForm">
+                <input type="hidden" id="qtyItemId">
+                <div class="form-group">
+                    <label for="newQty">New Quantity:</label>
+                    <input type="number" id="newQty" min="0" required>
+                </div>
+                <button type="submit" class="btn">Update Quantity</button>
+                <button type="button" onclick="closeQtyModal()" class="btn btn-danger">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Upload Modal -->
+    <div id="bulkModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBulkModal()">&times;</span>
+            <h3>📤 Bulk Upload Items</h3>
+            <div class="bulk-upload" id="bulkUpload">
+                <p>📁 Drop CSV file here or click to select</p>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                    CSV format: item_name, qty, threshold
+                </p>
+                <input type="file" id="csvFile" accept=".csv" style="display: none;">
+            </div>
+            <div style="margin-top: 1rem;">
+                <button onclick="processBulkUpload()" class="btn">Upload Items</button>
+                <button onclick="closeBulkModal()" class="btn btn-danger">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        let currentItems = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllItems();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Add item form
+            document.getElementById('addItemForm').addEventListener('submit', addItem);
+            
+            // Update item form
+            document.getElementById('updateItemForm').addEventListener('submit', updateItem);
+            
+            // Update quantity form
+            document.getElementById('updateQtyForm').addEventListener('submit', updateQuantity);
+            
+            // Search on enter
+            document.getElementById('searchName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchItems();
+                }
+            });
+
+            // Bulk upload setup
+            const bulkUpload = document.getElementById('bulkUpload');
+            const csvFile = document.getElementById('csvFile');
+            
+            bulkUpload.addEventListener('click', () => csvFile.click());
+            bulkUpload.addEventListener('dragover', handleDragOver);
+            bulkUpload.addEventListener('drop', handleDrop);
+            csvFile.addEventListener('change', handleFileSelect);
+        }
+
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(API_BASE + url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Request failed:', error);
+                showStatus('Request failed: ' + error.message, 'error');
+                throw error;
+            }
+        }
+
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        async function loadAllItems() {
+            try {
+                const items = await makeRequest('/items/');
+                currentItems = items;
+                displayItems(items, 'All Items');
+            } catch (error) {
+                document.getElementById('itemsContainer').innerHTML = '<div class="loading">Failed to load items</div>';
+            }
+        }
+
+        async function addItem(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const itemData = {
+                item_name: formData.get('itemName'),
+                qty: parseInt(formData.get('itemQty')),
+                threshold: parseInt(formData.get('itemThreshold'))
+            };
+
+            try {
+                await makeRequest('/items/', {
+                    method: 'POST',
+                    body: JSON.stringify(itemData)
+                });
+                
+                showStatus('Item added successfully!');
+                e.target.reset();
+                loadAllItems();
+            } catch (error) {
+                // Error already handled in makeRequest
+            }
+        }
+
+        async function searchItems() {
+            const searchName = document.getElementById('searchName').value.trim();
+            if (!searchName) {
+                showStatus('Please enter a search term', 'error');
+                return;
+            }
+
+            try {
+                const items = await makeRequest(`/items/search/?name=${encodeURIComponent(searchName)}`);
+                displayItems(items, `Search Results for "${searchName}"`);
+            } catch (error) {
+                // Error already handled in makeRequest
+            }
+        }
+
+        async function loadAlertItems() {
+            try {
+                const items = await makeRequest('/items/alerts/');
+                displayItems(items, 'Alert Items (Below Threshold)');
+            } catch (error) {
+                // Error already handled in makeRequest
+            }
+        }
+
+        function displayItems(items, title) {
+            document.getElementById('itemsTitle').textContent = `📋 ${title} (${items.length})`;
+            const container = document.getElementById('itemsContainer');
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="loading">No items found</div>';
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+                <div class="item-card ${item.alert ? 'alert' : ''}">
+                    <div class="item-name">
+                        ${item.item_name}
+                        ${item.alert ? '<span class="alert-badge">LOW STOCK</span>' : '<span class="success-badge">IN STOCK</span>'}
+                    </div>
+                    <div class="item-details">
+                        <div><strong>Quantity:</strong> ${item.qty}</div>
+                        <div><strong>Threshold:</strong> ${item.threshold}</div>
+                        <div><strong>ID:</strong> ${item.id}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button onclick="openUpdateModal(${item.id})" class="btn">Edit</button>
+                        <button onclick="openQtyModal(${item.id}, ${item.qty})" class="btn btn-info">Quick Qty</button>
+                        <button onclick="deleteItem(${item.id})" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openUpdateModal(itemId) {
+            const item = currentItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('updateItemId').value = item.id;
+            document.getElementById('updateItemName').value = item.item_name;
+            document.getElementById('updateItemQty').value = item.qty;
+            document.getElementById('updateItemThreshold').value = item.threshold;
+            document.getElementById('updateModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('updateModal').style.display = 'none';
+        }
+
+        async function updateItem(e) {
+            e.preventDefault();
+            
+            const itemId = document.getElementById('updateItemId').value;
+            const itemData = {
+                item_name: document.getElementById('updateItemName').value,
+                qty: parseInt(document.getElementById('updateItemQty').value),
+                threshold: parseInt(document.getElementById('updateItemThreshold').value)
+            };
+
+            try {
+                await makeRequest(`/items/${itemId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(itemData)
+                });
+                
+                showStatus('Item updated successfully!');
+                closeModal();
+                loadAllItems();
+            } catch (error) {
+                // Error already handled in makeRequest
+            }
+        }
+
+        function openQtyModal(itemId, currentQty) {
+            document.getElementById('qtyItemId').value = itemId;
+            document.getElementById('newQty').value = currentQty;
+            document.getElementById('qtyModal').style.display = 'block';
+        }
+
+        function closeQtyModal() {
+            document.getElementById('qtyModal').style.display = 'none';
+        }
+
+        async function updateQuantity(e) {
+            e.preventDefault();
+            
+            const itemId = document.getElementById('qtyItemId').value;
+            const qty = parseInt(document.getElementById('newQty').value);
+
+            try {
+                await makeRequest(`/items/${itemId}/quantity`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ qty: qty })
+                });
+                
+                showStatus('Quantity updated successfully!');
+                closeQtyModal();
+                loadAllItems();
+            } catch (error) {
+                // Error already handled in makeRequest
+            }
+        }
+
+        async function deleteItem(itemId) {
+            if (!confirm('Are you sure you want to delete this item?')) {
+                return;
+            }
+
+            try {
+                await makeRequest(`/items/${itemId}`, {
+                    method: 'DELETE'
+                });
+                
+                showStatus('Item deleted successfully!');
+                loadAllItems();
+            } catch (error) {
+                // Error already handled in makeRequest
+            }
+        }
+
+        async function downloadCSV() {
+            try {
+                const response = await fetch(API_BASE + '/items/download/');
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'items.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                showStatus('CSV downloaded successfully!');
+            } catch (error) {
+                showStatus('Download failed: ' + error.message, 'error');
+            }
+        }
+
+        function showBulkUpload() {
+            document.getElementById('bulkModal').style.display = 'block';
+        }
+
+        function closeBulkModal() {
+            document.getElementById('bulkModal').style.display = 'none';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('csvFile').files = files;
+            }
+        }
+
+        function handleFileSelect(e) {
+            // File selected, ready for upload
+        }
+
+        async function processBulkUpload() {
+            const fileInput = document.getElementById('csvFile');
+            if (!fileInput.files.length) {
+                showStatus('Please select a CSV file', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const csvContent = await file.text();
+            
+            try {
+                // Parse CSV manually for bulk upload
+                const lines = csvContent.split('\n');
+                const items = [];
+                
+                for (let i = 1; i < lines.length; i++) { // Skip header
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const [item_name, qty, threshold] = line.split(',').map(s => s.trim());
+                    if (item_name && qty && threshold) {
+                        items.push({
+                            item_name: item_name.replace(/"/g, ''),
+                            qty: parseInt(qty),
+                            threshold: parseInt(threshold)
+                        });
+                    }
+                }
+
+                if (items.length === 0) {
+                    showStatus('No valid items found in CSV', 'error');
+                    return;
+                }
+
+                await makeRequest('/items/bulk/', {
+                    method: 'POST',
+                    body: JSON.stringify(items)
+                });
+                
+                showStatus(`${items.length} items uploaded successfully!`);
+                closeBulkModal();
+                loadAllItems();
+            } catch (error) {
+                showStatus('Bulk upload failed: ' + error.message, 'error');
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = ['updateModal', 'qtyModal', 'bulkModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
