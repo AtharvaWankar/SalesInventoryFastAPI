@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,23 +12,37 @@
             --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
             --danger-gradient: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            
+
             --bg-primary: #ffffff;
             --bg-secondary: rgba(255, 255, 255, 0.95);
             --bg-accent: #f1f5f9;
-            
+
             --text-primary: #0f172a;
             --text-secondary: #334155;
             --text-muted: #64748b;
-            
+
             --border-light: rgba(255, 255, 255, 0.8);
             --border-medium: #94a3b8;
-            
+
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
             --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
             --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* Dark Theme Variables */
+        :root[data-theme="dark"] {
+            --bg-primary: #1e293b;
+            --bg-secondary: #334155;
+            --bg-accent: #475569;
+
+            --text-primary: #f1f5f9;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+
+            --border-light: rgba(55, 65, 81, 0.8);
+            --border-medium: #475569;
         }
 
         * {
@@ -701,15 +714,15 @@
             .actions {
                 grid-template-columns: 1fr;
             }
-            
+
             .items-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .header h1 {
                 font-size: 2rem;
             }
-            
+
             .container {
                 padding: 10px;
             }
@@ -933,6 +946,10 @@
         <div class="navigation">
             <button class="nav-btn active" onclick="switchView('cards')">📋 Card View</button>
             <button class="nav-btn" onclick="switchView('table')">📊 Table View</button>
+            <button class="nav-btn" onclick="toggleTheme()">
+                <span id="themeIcon"></span>
+                <span id="themeText"></span>
+            </button>
         </div>
 
         <div id="statusMessage"></div>
@@ -1127,18 +1144,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadAllItems();
             setupEventListeners();
+            initializeTheme();
         });
 
         function setupEventListeners() {
             // Add item form
             document.getElementById('addItemForm').addEventListener('submit', addItem);
-            
+
             // Update item form
             document.getElementById('updateItemForm').addEventListener('submit', updateItem);
-            
+
             // Update quantity form
             document.getElementById('updateQtyForm').addEventListener('submit', updateQuantity);
-            
+
             // Search on enter
             document.getElementById('searchName').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1156,11 +1174,44 @@
             // Bulk upload setup
             const bulkUpload = document.getElementById('bulkUpload');
             const csvFile = document.getElementById('csvFile');
-            
+
             bulkUpload.addEventListener('click', () => csvFile.click());
             bulkUpload.addEventListener('dragover', handleDragOver);
             bulkUpload.addEventListener('drop', handleDrop);
             csvFile.addEventListener('change', handleFileSelect);
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                updateThemeToggleButton('dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                updateThemeToggleButton('light');
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggleButton(newTheme);
+        }
+
+        function updateThemeToggleButton(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
         }
 
         function switchView(view) {
@@ -1185,7 +1236,7 @@
 
         function updateTableView() {
             const tableBody = document.getElementById('tableBody');
-            
+
             if (currentItems.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" class="loading">No items found</td></tr>';
                 return;
@@ -1253,11 +1304,11 @@
                     },
                     ...options
                 });
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 return await response.json();
             } catch (error) {
                 console.error('Request failed:', error);
@@ -1295,7 +1346,7 @@
 
         async function addItem(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(e.target);
             const itemData = {
                 item_name: formData.get('itemName'),
@@ -1308,7 +1359,7 @@
                     method: 'POST',
                     body: JSON.stringify(itemData)
                 });
-                
+
                 showStatus('Item added successfully!');
                 e.target.reset();
                 loadAllItems();
@@ -1356,7 +1407,7 @@
         function displayItems(items, title) {
             document.getElementById('itemsTitle').textContent = `📋 ${title} (${items.length})`;
             const container = document.getElementById('itemsContainer');
-            
+
             if (items.length === 0) {
                 container.innerHTML = '<div class="loading">No items found</div>';
                 return;
@@ -1399,7 +1450,7 @@
 
         async function updateItem(e) {
             e.preventDefault();
-            
+
             const itemId = document.getElementById('updateItemId').value;
             const itemData = {
                 item_name: document.getElementById('updateItemName').value,
@@ -1412,7 +1463,7 @@
                     method: 'PUT',
                     body: JSON.stringify(itemData)
                 });
-                
+
                 showStatus('Item updated successfully!');
                 closeModal();
                 loadAllItems();
@@ -1433,7 +1484,7 @@
 
         async function updateQuantity(e) {
             e.preventDefault();
-            
+
             const itemId = document.getElementById('qtyItemId').value;
             const qty = parseInt(document.getElementById('newQty').value);
 
@@ -1442,7 +1493,7 @@
                     method: 'PATCH',
                     body: JSON.stringify({ qty: qty })
                 });
-                
+
                 showStatus('Quantity updated successfully!');
                 closeQtyModal();
                 loadAllItems();
@@ -1460,7 +1511,7 @@
                 await makeRequest(`/items/${itemId}`, {
                     method: 'DELETE'
                 });
-                
+
                 showStatus('Item deleted successfully!');
                 loadAllItems();
             } catch (error) {
@@ -1474,7 +1525,7 @@
                 if (!response.ok) {
                     throw new Error('Download failed');
                 }
-                
+
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1484,7 +1535,7 @@
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
-                
+
                 showStatus('CSV downloaded successfully!');
             } catch (error) {
                 showStatus('Download failed: ' + error.message, 'error');
@@ -1532,7 +1583,7 @@
             const fileInfo = document.getElementById('selectedFileInfo');
             const fileName = document.getElementById('fileName');
             const fileSize = document.getElementById('fileSize');
-            
+
             fileName.textContent = file.name;
             fileSize.textContent = formatFileSize(file.size);
             fileInfo.style.display = 'block';
@@ -1554,7 +1605,7 @@
             }
 
             const file = fileInput.files[0];
-            
+
             // Validate file type
             if (!file.name.toLowerCase().endsWith('.csv')) {
                 showStatus('Please select a valid CSV file', 'error');
@@ -1563,24 +1614,24 @@
 
             try {
                 const csvContent = await file.text();
-                
+
                 // Parse CSV manually for bulk upload
                 const lines = csvContent.split('\n').filter(line => line.trim());
                 const items = [];
                 let errorCount = 0;
-                
+
                 // Check if we have a header line and skip it
                 const startIndex = lines[0] && lines[0].toLowerCase().includes('item_name') ? 1 : 0;
-                
+
                 for (let i = startIndex; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
-                    
+
                     // Handle CSV with commas inside quoted fields
                     const csvParts = parseCSVLine(line);
-                    
+
                     let item_name, qtyStr, thresholdStr;
-                    
+
                     // Handle both 3-column and 4-column formats
                     if (csvParts.length === 4) {
                         // Format: id, item_name, qty, threshold (skip id)
@@ -1597,10 +1648,10 @@
                         console.warn(`Invalid format on line ${i + 1}: ${line}`);
                         continue;
                     }
-                    
+
                     const qty = parseInt(qtyStr);
                     const threshold = parseInt(thresholdStr);
-                    
+
                     if (item_name && !isNaN(qty) && !isNaN(threshold) && qty >= 0 && threshold >= 0) {
                         items.push({
                             item_name: item_name,
@@ -1624,20 +1675,20 @@
                     method: 'POST',
                     body: JSON.stringify(items)
                 });
-                
+
                 let message = `${items.length} items uploaded successfully!`;
                 if (errorCount > 0) {
                     message += ` (${errorCount} rows skipped due to errors)`;
                 }
-                
+
                 showStatus(message);
-                closeBulkModal();
+                                closeBulkModal();
                 loadAllItems();
-                
+
                 // Clear the file input
                 fileInput.value = '';
                 document.getElementById('selectedFileInfo').style.display = 'none';
-                
+
             } catch (error) {
                 console.error('Bulk upload error:', error);
                 showStatus('Bulk upload failed: ' + error.message, 'error');
@@ -1648,10 +1699,10 @@
             const result = [];
             let current = '';
             let inQuotes = false;
-            
+
             for (let i = 0; i < line.length; i++) {
                 const char = line[i];
-                
+
                 if (char === '"' && (i === 0 || line[i-1] === ',')) {
                     inQuotes = true;
                 } else if (char === '"' && inQuotes && (i === line.length - 1 || line[i+1] === ',')) {
@@ -1663,7 +1714,7 @@
                     current += char;
                 }
             }
-            
+
             result.push(current);
             return result;
         }
