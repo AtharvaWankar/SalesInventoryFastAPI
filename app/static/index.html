@@ -1099,7 +1099,7 @@
                 <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
                     CSV format: item_name, qty, threshold
                 </p>
-                <input type="file" id="csvFile" accept=".csv" style="display: none;">.csv" style="display: none;">
+                <input type="file" id="csvFile" accept=".csv" style="display: none;">
             </div>
             <div style="margin-top: 1rem;">
                 <button onclick="processBulkUpload()" class="btn">Upload Items</button>
@@ -1527,7 +1527,7 @@
                     if (!line) continue;
                     
                     const [item_name, qty, threshold] = line.split(',').map(s => s.trim());
-                    if (item_name && qty !== undefined && threshold !== undefined) {
+                    if (item_name && qty && threshold) {
                         items.push({
                             item_name: item_name.replace(/"/g, ''),
                             qty: parseInt(qty),
