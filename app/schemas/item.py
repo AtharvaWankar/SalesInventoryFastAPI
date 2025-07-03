@@ -19,7 +19,7 @@ class ItemInDB(ItemBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ItemResponse(ItemInDB):
-    alert: bool = Falsese
+    alert: bool = False
