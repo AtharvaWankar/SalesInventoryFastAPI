@@ -581,20 +581,47 @@
         }
 
         .search-filter-bar {
-            background: var(--bg-secondary);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             padding: 1.5rem;
-            border-radius: 16px;
+            border-radius: 20px;
             margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-md);
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
             align-items: center;
+            border: 2px solid transparent;
+            background-clip: padding-box;
         }
 
         .search-filter-bar input {
             flex: 1;
             min-width: 200px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-filter-bar input:focus {
+            outline: none;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%), var(--secondary-gradient);
+            background-clip: padding-box, border-box;
+            box-shadow: 0 0 0 4px rgba(240, 147, 251, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-filter-bar input::placeholder {
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.8;
         }
 
         .stats-cards {
