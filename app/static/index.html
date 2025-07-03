@@ -33,22 +33,227 @@
 
         /* Dark Theme Variables */
         :root[data-theme="dark"] {
-            --bg-primary: #1e293b;
-            --bg-secondary: #334155;
-            --bg-accent: #475569;
+            --primary-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            --secondary-gradient: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            --success-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --warning-gradient: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            --danger-gradient: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            --info-gradient: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
 
-            --text-primary: #f1f5f9;
+            --bg-primary: #0f172a;
+            --bg-secondary: rgba(15, 23, 42, 0.95);
+            --bg-accent: #1e293b;
+
+            --text-primary: #f8fafc;
             --text-secondary: #e2e8f0;
             --text-muted: #94a3b8;
 
-            --border-light: rgba(55, 65, 81, 0.8);
+            --border-light: rgba(71, 85, 105, 0.8);
             --border-medium: #475569;
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Dark mode body background */
+        :root[data-theme="dark"] body {
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(67, 56, 202, 0.4), transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(239, 68, 68, 0.4), transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.3), transparent 50%),
+                radial-gradient(circle at 60% 30%, rgba(245, 158, 11, 0.3), transparent 50%),
+                linear-gradient(135deg, #0f172a 0%, #1e293b 20%, #334155 40%, #475569 60%, #64748b 80%, #0f172a 100%);
+        }
+
+        /* Dark mode glass effect */
+        :root[data-theme="dark"] .action-card,
+        :root[data-theme="dark"] .items-display,
+        :root[data-theme="dark"] .table-container,
+        :root[data-theme="dark"] .modal-content,
+        :root[data-theme="dark"] .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 2px solid rgba(71, 85, 105, 0.6);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(148, 163, 184, 0.1);
+        }
+
+        :root[data-theme="dark"] .action-card::before,
+        :root[data-theme="dark"] .items-display::before,
+        :root[data-theme="dark"] .table-container::before,
+        :root[data-theme="dark"] .modal-content::before,
+        :root[data-theme="dark"] .stat-card::before {
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.2) 0%, rgba(15, 23, 42, 0.1) 100%);
+        }
+
+        :root[data-theme="dark"] .item-card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(71, 85, 105, 0.7);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.5),
+                0 2px 6px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(148, 163, 184, 0.1);
+        }
+
+        :root[data-theme="dark"] .item-card:hover {
+            background: rgba(51, 65, 85, 0.9);
+            border-color: rgba(67, 56, 202, 0.6);
+        }
+
+        :root[data-theme="dark"] .item-card.alert {
+            border-color: rgba(239, 68, 68, 0.6);
+            background: rgba(55, 65, 81, 0.9);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                       color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                       border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                       box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Creative Dark Mode Toggle Button */
+        .theme-toggle {
+            position: relative;
+            width: 80px;
+            height: 40px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 25px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 
+                0 4px 15px rgba(251, 191, 36, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        :root[data-theme="dark"] .theme-toggle {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            box-shadow: 
+                0 4px 15px rgba(30, 41, 59, 0.6),
+                inset 0 1px 0 rgba(148, 163, 184, 0.1);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 4px;
+            width: 32px;
+            height: 32px;
+            background: radial-gradient(circle, #fff 30%, transparent 30%),
+                       radial-gradient(circle at 20% 20%, #fff 2px, transparent 2px),
+                       radial-gradient(circle at 80% 80%, #fff 1px, transparent 1px),
+                       radial-gradient(circle at 70% 30%, #fff 1.5px, transparent 1.5px),
+                       radial-gradient(circle at 30% 70%, #fff 1px, transparent 1px),
+                       radial-gradient(circle at 50% 20%, #fff 1px, transparent 1px),
+                       radial-gradient(circle at 80% 50%, #fff 1.5px, transparent 1.5px),
+                       radial-gradient(circle at 20% 80%, #fff 1px, transparent 1px),
+                       radial-gradient(circle at 60% 80%, #fff 1px, transparent 1px),
+                       linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 50%;
+            transform: translateY(-50%) scale(1);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.15),
+                0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        :root[data-theme="dark"] .theme-toggle::before {
+            left: 44px;
+            background: radial-gradient(ellipse at 30% 30%, transparent 20%, #e2e8f0 20%),
+                       linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            transform: translateY(-50%) scale(0.9);
+            box-shadow: 
+                -2px 0 8px rgba(0, 0, 0, 0.3),
+                0 0 0 2px rgba(71, 85, 105, 0.3);
+        }
+
+        .theme-toggle-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        :root[data-theme="dark"] .theme-toggle-stars {
+            opacity: 1;
+        }
+
+        .theme-toggle-stars::before,
+        .theme-toggle-stars::after {
+            content: '';
+            position: absolute;
+            background: #e2e8f0;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out alternate;
+        }
+
+        .theme-toggle-stars::before {
+            top: 8px;
+            left: 12px;
+            width: 2px;
+            height: 2px;
+            animation-delay: 0s;
+        }
+
+        .theme-toggle-stars::after {
+            top: 25px;
+            right: 15px;
+            width: 1.5px;
+            height: 1.5px;
+            animation-delay: 1s;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 6px 20px rgba(251, 191, 36, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        :root[data-theme="dark"] .theme-toggle:hover {
+            box-shadow: 
+                0 6px 20px rgba(30, 41, 59, 0.8),
+                inset 0 1px 0 rgba(148, 163, 184, 0.2);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        /* Enhanced navigation button for theme toggle */
+        .nav-btn.theme-btn {
+            padding: 0;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .nav-btn.theme-btn:hover {
+            background: transparent;
+            transform: none;
+            box-shadow: none;
         }
 
         body {
@@ -946,9 +1151,10 @@
         <div class="navigation">
             <button class="nav-btn active" onclick="switchView('cards')">📋 Card View</button>
             <button class="nav-btn" onclick="switchView('table')">📊 Table View</button>
-            <button class="nav-btn" onclick="toggleTheme()">
-                <span id="themeIcon"></span>
-                <span id="themeText"></span>
+            <button class="nav-btn theme-btn" onclick="toggleTheme()">
+                <div class="theme-toggle">
+                    <div class="theme-toggle-stars"></div>
+                </div>
             </button>
         </div>
 
@@ -1183,36 +1389,116 @@
 
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                updateThemeToggleButton('dark');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                updateThemeToggleButton('light');
-            }
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Add a slight delay to ensure CSS is loaded
+            setTimeout(() => {
+                document.body.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            }, 100);
         }
 
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
+            // Add a gentle bounce animation to the toggle
+            const toggleButton = document.querySelector('.theme-toggle');
+            toggleButton.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                toggleButton.style.transform = 'scale(1)';
+            }, 150);
+
+            // Create a ripple effect
+            createRippleEffect(toggleButton);
+
+            // Apply theme change with a smooth transition
+            document.documentElement.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            updateThemeToggleButton(newTheme);
+
+            // Add some visual feedback
+            showThemeChangeNotification(newTheme);
         }
 
-        function updateThemeToggleButton(theme) {
-            const themeIcon = document.getElementById('themeIcon');
-            const themeText = document.getElementById('themeText');
+        function createRippleEffect(element) {
+            const ripple = document.createElement('div');
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${rect.width / 2 - size / 2}px;
+                top: ${rect.height / 2 - size / 2}px;
+                pointer-events: none;
+            `;
 
-            if (theme === 'dark') {
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Light Mode';
-            } else {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Dark Mode';
+            element.style.position = 'relative';
+            element.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        function showThemeChangeNotification(theme) {
+            const notification = document.createElement('div');
+            const emoji = theme === 'dark' ? '🌙' : '☀️';
+            const message = theme === 'dark' ? 'Dark Mode Activated' : 'Light Mode Activated';
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${theme === 'dark' ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
+                color: ${theme === 'dark' ? '#f8fafc' : '#0f172a'};
+                padding: 12px 20px;
+                border-radius: 25px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+                backdrop-filter: blur(10px);
+                border: 2px solid ${theme === 'dark' ? 'rgba(71, 85, 105, 0.6)' : 'rgba(229, 231, 235, 0.8)'};
+                font-weight: 600;
+                font-size: 0.9rem;
+                z-index: 10000;
+                transform: translateX(300px);
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                pointer-events: none;
+            `;
+            
+            notification.innerHTML = `${emoji} ${message}`;
+            document.body.appendChild(notification);
+
+            // Slide in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Slide out
+            setTimeout(() => {
+                notification.style.transform = 'translateX(300px)';
+                setTimeout(() => {
+                    notification.remove();
+                }, 400);
+            }, 2000);
+        }
+
+        // Add CSS for ripple animation
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
             }
-        }
+        `;
+        document.head.appendChild(rippleStyle);
 
         function switchView(view) {
             // Update navigation buttons
