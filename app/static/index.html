@@ -1097,7 +1097,8 @@
             <div class="bulk-upload" id="bulkUpload">
                 <p>📁 Drop CSV file here or click to select</p>
                 <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
-                    CSV format: item_name, qty, threshold
+                    CSV format: item_name, qty, threshold<br>
+                    <em>or: id, item_name, qty, threshold (id will be ignored)</em>
                 </p>
                 <input type="file" id="csvFile" accept=".csv" style="display: none;">
                 <div id="selectedFileInfo" style="margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 8px; display: none;">
@@ -1577,27 +1578,37 @@
                     // Handle CSV with commas inside quoted fields
                     const csvParts = parseCSVLine(line);
                     
-                    if (csvParts.length >= 3) {
-                        const item_name = csvParts[0].trim().replace(/^["']|["']$/g, '');
-                        const qtyStr = csvParts[1].trim();
-                        const thresholdStr = csvParts[2].trim();
-                        
-                        const qty = parseInt(qtyStr);
-                        const threshold = parseInt(thresholdStr);
-                        
-                        if (item_name && !isNaN(qty) && !isNaN(threshold) && qty >= 0 && threshold >= 0) {
-                            items.push({
-                                item_name: item_name,
-                                qty: qty,
-                                threshold: threshold
-                            });
-                        } else {
-                            errorCount++;
-                            console.warn(`Invalid data on line ${i + 1}: ${line}`);
-                        }
+                    let item_name, qtyStr, thresholdStr;
+                    
+                    // Handle both 3-column and 4-column formats
+                    if (csvParts.length === 4) {
+                        // Format: id, item_name, qty, threshold (skip id)
+                        item_name = csvParts[1].trim().replace(/^["']|["']$/g, '');
+                        qtyStr = csvParts[2].trim();
+                        thresholdStr = csvParts[3].trim();
+                    } else if (csvParts.length === 3) {
+                        // Format: item_name, qty, threshold
+                        item_name = csvParts[0].trim().replace(/^["']|["']$/g, '');
+                        qtyStr = csvParts[1].trim();
+                        thresholdStr = csvParts[2].trim();
                     } else {
                         errorCount++;
                         console.warn(`Invalid format on line ${i + 1}: ${line}`);
+                        continue;
+                    }
+                    
+                    const qty = parseInt(qtyStr);
+                    const threshold = parseInt(thresholdStr);
+                    
+                    if (item_name && !isNaN(qty) && !isNaN(threshold) && qty >= 0 && threshold >= 0) {
+                        items.push({
+                            item_name: item_name,
+                            qty: qty,
+                            threshold: threshold
+                        });
+                    } else {
+                        errorCount++;
+                        console.warn(`Invalid data on line ${i + 1}: ${line}`);
                     }
                 }
 
